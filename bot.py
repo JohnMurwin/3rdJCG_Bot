@@ -2,8 +2,11 @@
 # Codename: "JR"
 #By: J. Murwin, W. Alphin
 
+# --- bot.py --- #
+# Handles the loading of the cogs & initilization functions
+
 #--CONFIG--
-token = "NTg5OTk3MTE3MTIxMjMyOTM3.XoyVzw.N5IV-mpG-edUdDr9VbTwDMhVClM" 
+token = "NTg5OTk3MTE3MTIxMjMyOTM3.XozSSg.UcmDIy6P4O6uacXyXzFE1GZzbsk" 
 prefix = "!"
 
 #Discord Setup
