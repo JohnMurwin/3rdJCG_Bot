@@ -6,16 +6,27 @@
 # Handles the loading of the cogs & initilization functions
 
 #--CONFIG--
-token = "NTg5OTk3MTE3MTIxMjMyOTM3.XozSSg.UcmDIy6P4O6uacXyXzFE1GZzbsk" 
-prefix = "!"
+# REPLACE WITH CONFIG FILE LATER
+#prefix = "!"
+
+
+# HERES SOME BULLSHIT
 
 #Discord Setup
 import discord
 import os
+import dotenv
 from discord.ext import commands
+from dotenv import load_dotenv
+
+#Token Retrieval from OS
+token = os.getenv('DISCORD_TOKEN')
+prefix = os.getenv('PREFIX')
 
 #Command Prefix Setup
 client = commands.Bot(command_prefix = prefix)
+
+
 
 # READY #
 @client.event
