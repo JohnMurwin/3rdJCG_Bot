@@ -14,16 +14,34 @@ from discord.ext import commands
 #Command Prefix Setup
 client = commands.Bot(command_prefix = prefix)
 
+# READY #
+@client.event
+async def on_ready():
+    print ('Jr is Online')
+
+    #set bot status
+    await client.change_presence(status=discord.Status.online, activity=discord.Game('!help'))
+
+
 # LOAD COGS #
 @client.command()
 async def load(ctx, extension):
     client.load_extension(f'cogs.{extension}')
+    await ctx.send ('Extension Loaded')
 
 # UNLOAD COGS #
 @client.command()
 async def unload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
+    await ctx.send ('Extension UnLoaded')
 
+
+# RELOAD COG #
+@client.command()
+async def reload(ctx, extension):
+    client.unload_extension(f'cogs.{extension}')
+    client.load_extension(f'cogs.{extension}')
+    await ctx.send ('Extension ReLoaded')
 
 # AUTO-LOAD COGS#
 for filename in os.listdir('./cogs'):
