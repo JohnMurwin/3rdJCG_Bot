@@ -6,7 +6,9 @@
 # Handles the basic bot functionality commands
 
 import discord
+import time
 import random
+import asyncio
 from discord.ext import commands
 
 
@@ -31,15 +33,16 @@ class Basic(commands.Cog):
             'Tails!'
         )
         await ctx.send(random.choice(outcomes))
-
     
     # ROLL COMMAND #
+    #returns 1-6 integer
     @commands.command()
     async def roll(self, ctx):
         outcomes = random.randint(1,6)
         await ctx.send(outcomes)
 
     # 8BALL COMMAND #
+    #returns a randomly selected response from list below
     @commands.command(aliases = ['8ball'])
     async def _8ball(self, ctx, *, question):
         responses = (
@@ -58,6 +61,10 @@ class Basic(commands.Cog):
                 'Are you out of your mind?'
             )
         await ctx.send (f'Answer: {random.choice(responses)}')
+
+
+    # UPTIME COMMAND #
+    #returns uptime of Bot
 
 def setup (client):
     client.add_cog(Basic(client))
