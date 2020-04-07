@@ -6,8 +6,9 @@
 # Handles the basic bot functionality commands
 
 import discord
+import random
 from discord.ext import commands
-from random import randint, choice
+
 
 class Basic(commands.Cog):
 
@@ -29,8 +30,34 @@ class Basic(commands.Cog):
             'Heads!',
             'Tails!'
         )
-        
-        await ctx.send(choice(outcomes))
+        await ctx.send(random.choice(outcomes))
+
+    
+    # ROLL COMMAND #
+    @commands.command()
+    async def roll(self, ctx):
+        outcomes = random.randint(1,6)
+        await ctx.send(outcomes)
+
+    # 8BALL COMMAND #
+    @commands.command(aliases = ['8ball'])
+    async def _8ball(self, ctx, *, question):
+        responses = (
+                'Absolutely!',
+                'Without a doubt.',
+                'Most likely.',
+                'Yes.',
+                'Maybe.',
+                'Perhaps.',
+                'Nope.',
+                'Very doubtful.',
+                'Absolutely not.',
+                'It is unlikely.',
+                'Oof',
+                'Yeah not gunna happen chief.',
+                'Are you out of your mind?'
+            )
+        await ctx.send (f'Answer: {random.choice(responses)}')
 
 def setup (client):
     client.add_cog(Basic(client))
