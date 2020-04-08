@@ -17,6 +17,14 @@ class Basic(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+
+    # CLEAR COMMAND #
+    #deletes specific number of messages in the channel based off criteria
+    @commands.command()
+    async def clear (self, ctx):
+        channel = self.get_channel('588896961768456192')
+        
+
     # PING COMMAND #
     #just ensures bot is online and reading, returns MS ping
     @commands.command()
