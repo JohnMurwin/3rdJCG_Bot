@@ -13,16 +13,18 @@ from discord.ext import commands
 
 
 class Basic(commands.Cog):
-
+    
     def __init__(self, client):
         self.client = client
 
-    
     # PING COMMAND #
     #just ensures bot is online and reading, returns MS ping
     @commands.command()
     async def ping(self, ctx):
-        await ctx.send(f"Ping: {self.client.latency * 1000:.0f} ms")
+        embed = discord.Embed(title="PING", color=0xff8100)
+        embed.add_field(name="Result", value=f"{self.client.latency * 1000:.0f} ms", inline=True)
+
+        await ctx.send(embed=embed)
 
     # FLIP COMMAND #
     #returns Heads or Tails string
@@ -32,14 +34,20 @@ class Basic(commands.Cog):
             'Heads!',
             'Tails!'
         )
-        await ctx.send(random.choice(outcomes))
+        embed = discord.Embed(title="FLIP", color=0xff8100)
+        embed.add_field(name="Result", value=random.choice(outcomes), inline=True)
+
+        await ctx.send(embed=embed)
     
     # ROLL COMMAND #
     #returns 1-6 integer
     @commands.command()
     async def roll(self, ctx):
         outcomes = random.randint(1,6)
-        await ctx.send(outcomes)
+        embed = discord.Embed(title="ROLL", color=0xff8100)
+        embed.add_field(name="Result", value=(outcomes), inline=True)
+
+        await ctx.send(embed=embed)
 
     # 8BALL COMMAND #
     #returns a randomly selected response from list below
@@ -60,7 +68,12 @@ class Basic(commands.Cog):
                 'Yeah not gunna happen chief.',
                 'Are you out of your mind?'
             )
-        await ctx.send (f'Answer: {random.choice(responses)}')
+
+        embed = discord.Embed(title="8-BALL", color=0xff8100)
+        embed.add_field(name="Question", value=question, inline=True)
+        embed.add_field(name="Answer", value=random.choice(responses), inline=False)
+        
+        await ctx.send (embed=embed)
 
 
     # UPTIME COMMAND #
