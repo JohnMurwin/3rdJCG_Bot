@@ -17,22 +17,20 @@ class Basic(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-
-    # CLEAR COMMAND #
-    #deletes specific number of messages in the channel based off criteria
-    @commands.command()
-    async def clear (self, ctx):
-        channel = self.get_channel('588896961768456192')
-        
-
     # PING COMMAND #
     #just ensures bot is online and reading, returns MS ping
     @commands.command()
     async def ping(self, ctx):
-        embed = discord.Embed(title="PING", color=0xff8100)
-        embed.add_field(name="Result", value=f"{self.client.latency * 1000:.0f} ms", inline=True)
+        role = discord.utils.get(ctx.guild.roles, name="Race Team")
 
-        await ctx.send(embed=embed)
+        if role in ctx.author.roles:
+            embed = discord.Embed(title="PING", color=0xff8100)
+            embed.add_field(name="Result", value=f"{self.client.latency * 1000:.0f} ms", inline=True)
+
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send ("You do not have permissions to use this function.")
+        
 
     # FLIP COMMAND #
     #returns Heads or Tails string

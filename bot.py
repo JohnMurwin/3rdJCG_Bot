@@ -37,11 +37,29 @@ async def on_ready():
     await client.change_presence(status=discord.Status.online, activity=discord.Game('!help'))
 
 
+# CLEAR ALL MESSAGES COMMAND #
+@client.command(pass_context=True)
+async def clearall(ctx, amount=10):
+    channel = ctx.message.channel
+
+    await channel.purge(limit=int(amount))
+
+# CLEAR BOT MESSAGES COMMAND #
+@client.command(pass_context=True)
+async def clearbot(ctx, amount=10):
+    def is_me(m):
+        return m.author == client.user
+
+    channel = ctx.message.channel
+
+    await channel.purge(limit=int(amount), check=is_me)
+
 # LOAD COGS #
 @client.command()
 async def load(ctx, extension):
     client.load_extension(f'cogs.{extension}')
     await ctx.send ('Extension Loaded')
+
 
 # UNLOAD COGS #
 @client.command()
@@ -56,6 +74,7 @@ async def reload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
     client.load_extension(f'cogs.{extension}')
     await ctx.send ('Extension ReLoaded')
+
 
 # AUTO-LOAD COGS#
 for filename in os.listdir('./cogs'):
