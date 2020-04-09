@@ -10,6 +10,7 @@ import time
 import random
 import asyncio
 from discord.ext import commands
+from discord import guild
 
 
 class Basic(commands.Cog):
@@ -61,7 +62,6 @@ class Basic(commands.Cog):
                 'Are you out of your mind?'
             )
         await ctx.send (f'Answer: {random.choice(responses)}')
-
 
     # UPTIME COMMAND #
     #returns uptime of Bot
