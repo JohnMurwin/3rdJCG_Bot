@@ -13,6 +13,7 @@ from bot import BotAdmin
 from bot import BotCommander
 from bot import BotUser
 from discord.ext import commands
+from discord import guild
 
 
 class Basic(commands.Cog):
@@ -80,12 +81,10 @@ class Basic(commands.Cog):
                 'Yeah not gunna happen chief.',
                 'Are you out of your mind?'
             )
+        await ctx.send (f'Answer: {random.choice(responses)}')
 
-        embed = discord.Embed(title="8-BALL", color=0xff8100)
-        embed.add_field(name="Question", value=question, inline=True)
-        embed.add_field(name="Answer", value=random.choice(responses), inline=False)
-        
-        await ctx.send (embed=embed)
+    # UPTIME COMMAND #
+    #returns uptime of Bot
 
 def setup (client):
     client.add_cog(Basic(client))
