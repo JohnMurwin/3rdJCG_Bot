@@ -1,0 +1,8 @@
+{
+    "DISCORD_TOKEN": "PUT YOUR TOKEN HERE",
+    "PREFIX" : "!",
+
+    "BOT_ADMIN" : ["PUT YOUR ADMIN ROLE NAME HERE"], 
+    "BOT_COMMANDER": ["PUT YOUR MODERATOR ROLE HERE"],
+    "BOT_USER": ["Member"]
+}
