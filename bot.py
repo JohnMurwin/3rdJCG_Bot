@@ -5,40 +5,37 @@
 # --- bot.py --- #
 # Handles the loading of the cogs & initilization functions
 
-#--CONFIG--
-# REPLACE WITH CONFIG FILE LATER
-#prefix = "!"
-
-
-# HERES SOME BULLSHIT
-
 #Discord Setup
 import discord
 import os
-import dotenv
+import json
 from discord.ext import commands
-from dotenv import load_dotenv
 
-#Token Retrieval from OS
-token = os.getenv('DISCORD_TOKEN')
-prefix = os.getenv('PREFIX')
+#Token & Prefix Retrieval from JSON
+token = json.loads(open("config.json").read())["DISCORD_TOKEN"]
+prefix = json.loads(open("config.json").read())["PREFIX"]
+
+#User Retrieval from JSON
+BotAdmin = json.loads(open("config.json").read())["BOT_ADMIN"]
+BotCommander = json.loads(open("config.json").read())["BOT_COMMANDER"]
+BotUser = json.loads(open("config.json").read())["BOT_USER"]
+
 
 #Command Prefix Setup
 client = commands.Bot(command_prefix = prefix)
-
 
 
 # READY #
 @client.event
 async def on_ready():
     print ('Jr is Online')
-
     #set bot status
     await client.change_presence(status=discord.Status.online, activity=discord.Game('!help'))
 
 
-# CLEAR ALL MESSAGES COMMAND #
+# CLEAR ALL MESSAGES COMMAND # 
 @client.command(pass_context=True)
+@commands.has_any_role(*BotAdmin)
 async def clearall(ctx, amount=10):
     channel = ctx.message.channel
 
@@ -46,6 +43,7 @@ async def clearall(ctx, amount=10):
 
 # CLEAR BOT MESSAGES COMMAND #
 @client.command(pass_context=True)
+@commands.has_any_role(*BotAdmin, *BotCommander)
 async def clearbot(ctx, amount=10):
     def is_me(m):
         return m.author == client.user
@@ -56,6 +54,7 @@ async def clearbot(ctx, amount=10):
 
 # LOAD COGS #
 @client.command()
+@commands.has_any_role(*BotAdmin)
 async def load(ctx, extension):
     client.load_extension(f'cogs.{extension}')
     await ctx.send ('Extension Loaded')
@@ -63,6 +62,7 @@ async def load(ctx, extension):
 
 # UNLOAD COGS #
 @client.command()
+@commands.has_any_role(*BotAdmin)
 async def unload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
     await ctx.send ('Extension UnLoaded')
@@ -70,6 +70,7 @@ async def unload(ctx, extension):
 
 # RELOAD COG #
 @client.command()
+@commands.has_any_role(*BotAdmin)
 async def reload(ctx, extension):
     client.unload_extension(f'cogs.{extension}')
     client.load_extension(f'cogs.{extension}')

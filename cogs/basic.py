@@ -9,32 +9,34 @@ import discord
 import time
 import random
 import asyncio
+from bot import BotAdmin
+from bot import BotCommander
+from bot import BotUser
 from discord.ext import commands
 
 
 class Basic(commands.Cog):
     
+    # Client Setup
     def __init__(self, client):
         self.client = client
+
 
     # PING COMMAND #
     #just ensures bot is online and reading, returns MS ping
     @commands.command()
+    @commands.has_any_role(*BotUser)
     async def ping(self, ctx):
-        role = discord.utils.get(ctx.guild.roles, name="Race Team")
+        embed = discord.Embed(title="PING", color=0xff8100)
+        embed.add_field(name="Result", value=f"{self.client.latency * 1000:.0f} ms", inline=True)
 
-        if role in ctx.author.roles:
-            embed = discord.Embed(title="PING", color=0xff8100)
-            embed.add_field(name="Result", value=f"{self.client.latency * 1000:.0f} ms", inline=True)
-
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send ("You do not have permissions to use this function.")
+        await ctx.send(embed=embed)
         
 
     # FLIP COMMAND #
     #returns Heads or Tails string
     @commands.command()
+    @commands.has_any_role(*BotUser)
     async def flip(self, ctx):
         outcomes = (
             'Heads!',
@@ -45,9 +47,11 @@ class Basic(commands.Cog):
 
         await ctx.send(embed=embed)
     
+
     # ROLL COMMAND #
     #returns 1-6 integer
     @commands.command()
+    @commands.has_any_role(*BotUser)
     async def roll(self, ctx):
         outcomes = random.randint(1,6)
         embed = discord.Embed(title="ROLL", color=0xff8100)
@@ -55,9 +59,11 @@ class Basic(commands.Cog):
 
         await ctx.send(embed=embed)
 
+
     # 8BALL COMMAND #
     #returns a randomly selected response from list below
     @commands.command(aliases = ['8ball'])
+    @commands.has_any_role(*BotUser)
     async def _8ball(self, ctx, *, question):
         responses = (
                 'Absolutely!',
@@ -80,10 +86,6 @@ class Basic(commands.Cog):
         embed.add_field(name="Answer", value=random.choice(responses), inline=False)
         
         await ctx.send (embed=embed)
-
-
-    # UPTIME COMMAND #
-    #returns uptime of Bot
 
 def setup (client):
     client.add_cog(Basic(client))
