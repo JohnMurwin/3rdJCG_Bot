@@ -70,7 +70,7 @@ class missions(commands.Cog):
 
             if  not invalidDate and not invalidTime:
                 #create the mission channel for the author to post the dossier
-                category = discord.utils.get(ctx.guild.categories, name="OPERATIONS")
+                category = discord.utils.get(ctx.guild.categories, name="Operations")
                 channel = await ctx.guild.create_text_channel(missionName,overwrites=None,category = category)
                 channelID = channel.id
                 with open(missionsFile, 'a', newline='') as csvfile:
