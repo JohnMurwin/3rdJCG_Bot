@@ -132,3 +132,4 @@ config.env
 
 .vscode/
 config.json
+data/test.py

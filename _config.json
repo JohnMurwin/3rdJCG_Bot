@@ -4,5 +4,12 @@
 
     "BOT_ADMIN" : ["PUT YOUR ADMIN ROLE NAME HERE"], 
     "BOT_COMMANDER": ["PUT YOUR MODERATOR ROLE HERE"],
-    "BOT_USER": ["Member"]
+    "BOT_USER": ["Member"],
+
+    "DBHOST" : "HOST",
+    "DBUSER" : "USER",
+    "DBPW" : "PASSWORD",
+    "DB" : "DATABASE",
+
+    "MISSIONPATH" : "PATH TO MISSIONS DIRECTORY"
 }
