@@ -15,13 +15,11 @@ from bot import BotUser
 from discord.ext import commands
 from discord import guild
 
-
 class Basic(commands.Cog):
     
     # Client Setup
     def __init__(self, client):
         self.client = client
-
 
     # PING COMMAND #
     #just ensures bot is online and reading, returns MS ping
@@ -32,7 +30,6 @@ class Basic(commands.Cog):
         embed.add_field(name="Result", value=f"{self.client.latency * 1000:.0f} ms", inline=True)
 
         await ctx.send(embed=embed)
-        
 
     # FLIP COMMAND #
     #returns Heads or Tails string
@@ -48,7 +45,6 @@ class Basic(commands.Cog):
 
         await ctx.send(embed=embed)
     
-
     # ROLL COMMAND #
     #returns 1-6 integer
     @commands.command()
@@ -59,7 +55,6 @@ class Basic(commands.Cog):
         embed.add_field(name="Result", value=(outcomes), inline=True)
 
         await ctx.send(embed=embed)
-
 
     # 8BALL COMMAND #
     #returns a randomly selected response from list below
@@ -85,6 +80,31 @@ class Basic(commands.Cog):
 
     # UPTIME COMMAND #
     #returns uptime of Bot
+
+    # TTS TEST #
+    @commands.command()
+    @commands.has_any_role(*BotUser)
+    async def tts(self, ctx):
+        myFile = discord.File(r"C:\temp\test.txt")
+        await ctx.send(file=myFile)
+
+    # TTS TEST #
+    @commands.command()
+    #@commands.has_any_role(*BotUser)
+    async def save(self, ctx):
+        hasAttachments = ctx.message.attachments
+        print(hasAttachments)
+        if  hasAttachments !=[]:
+            attachment= ctx.message.attachments[0]
+            fileName = attachment.filename
+            print(fileName[-3:])
+            if fileName[-3:] != "pbo":
+                await ctx.send("Only PBO files can be uploaded")
+            else:
+                path = "C:\\temp\\"
+                await attachment.save(f"{path}{fileName}")
+        else:
+            await ctx.send("No Attachments")
 
 def setup (client):
     client.add_cog(Basic(client))
