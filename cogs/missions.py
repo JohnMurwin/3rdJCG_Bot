@@ -15,13 +15,14 @@ import re
 import mysql.connector
 from discord.ext import commands
 from datetime import timedelta
+from datetime import datetime
 
 #pull DB connection from secure file
 dbhost = json.loads(open("config.json").read())["DBHOST"]
 dbuser = json.loads(open("config.json").read())["DBUSER"]
 dbpw = json.loads(open("config.json").read())["DBPW"]
 db = json.loads(open("config.json").read())["DB"]
-missionsPath = json.loads(open("config.json").read()["MISSIONPATH"])
+missionsPath = json.loads(open("config.json").read())["MISSIONPATH"]
 
 mydb = mysql.connector.connect(
             host= dbhost,
@@ -74,7 +75,7 @@ class missions(commands.Cog):
 
             #verify date format
             try: 
-                datetime.datetime.strptime(missionDate, '%m/%d/%y')
+                datetime.strptime(missionDate, '%m/%d/%y')
                 invalidDate = False
             except:
                 invalidDate = True
@@ -100,7 +101,7 @@ class missions(commands.Cog):
                     channelID = 0
 
                 if missionMaker == "none":
-                    missionMaker = ctx.author.name
+                    missionMaker = ctx.author.nick
 
                 mycursor = mydb.cursor()
                 sql = "INSERT INTO missions (name, date, time, author, channelid) VALUES (%s, %s, %s, %s, %s)"
@@ -194,7 +195,7 @@ class missions(commands.Cog):
         nameParameters = ['Name','name']
         authorParameters = ['Author','author']
 
-        today = datetime.datetime.now().date()
+        today = datetime.now().date()
         daysAhead = today + timedelta(days=7)
         todayStr = today.strftime('%m/%d/%y')
         daysAheadStr = daysAhead.strftime('%m/%d/%y')
@@ -216,7 +217,7 @@ class missions(commands.Cog):
         #validate the date format
         if missionDate !=None:
             try: 
-                datetime.datetime.strptime(missionDate, '%m/%d/%y')
+                datetime.strptime(missionDate, '%m/%d/%y')
                 invalidDate = False
             except:
                 invalidDate = True
@@ -238,7 +239,7 @@ class missions(commands.Cog):
                 for i in result:
                     count += 1
                 for x in range(0,count):
-                    if result[x][1] >= todayStr:
+                    if datetime.strptime(result[x][1], '%m/%d/%y') >= datetime.strptime(todayStr, '%m/%d/%y'):
                         embed = discord.Embed(title="Mission: {}".format(result[x][0]), color=embedGreen)
                         embed.add_field(name="Name", value = result[x][0], inline=False)
                         embed.add_field(name="Date", value = result[x][1], inline=False)
@@ -307,7 +308,7 @@ class missions(commands.Cog):
                         await ctx.send(embed=embed)
                 
             if count == 0:
-                embed = discord.Embed(title="Mission: {} was not found".format(missionName), description = "Either you spell like Friedel or it ain't there", color=embedRed)
+                embed = discord.Embed(title="No missions were found", description = "Check your spelling, try a different pramemter or no future missions have been scheduled at this time.", color=embedRed)
                 embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
                 await ctx.send(embed=embed)
 
@@ -315,7 +316,7 @@ class missions(commands.Cog):
 
     @commands.command(aliases = ['notify'])
     async def yell(self, ctx):
-        messageAuthor = ctx.author.name
+        messageAuthor = ctx.author.nick
         channelID = ctx.channel.id
         channel = ctx.message.channel
         mycursor = mydb.cursor()
