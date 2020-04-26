@@ -81,30 +81,5 @@ class Basic(commands.Cog):
     # UPTIME COMMAND #
     #returns uptime of Bot
 
-    # TTS TEST #
-    @commands.command()
-    @commands.has_any_role(*BotUser)
-    async def tts(self, ctx):
-        myFile = discord.File(r"C:\temp\test.txt")
-        await ctx.send(file=myFile)
-
-    # TTS TEST #
-    @commands.command()
-    #@commands.has_any_role(*BotUser)
-    async def save(self, ctx):
-        hasAttachments = ctx.message.attachments
-        print(hasAttachments)
-        if  hasAttachments !=[]:
-            attachment= ctx.message.attachments[0]
-            fileName = attachment.filename
-            print(fileName[-3:])
-            if fileName[-3:] != "pbo":
-                await ctx.send("Only PBO files can be uploaded")
-            else:
-                path = "C:\\temp\\"
-                await attachment.save(f"{path}{fileName}")
-        else:
-            await ctx.send("No Attachments")
-
 def setup (client):
     client.add_cog(Basic(client))
