@@ -35,7 +35,7 @@ class diceGame(commands.Cog):
         else:
             diceGame.gameOpen = True
             diceGame.gameJoining = True
-            author = ctx.message.author.name
+            author = ctx.message.author.nick
             diceGame.gameHost = author
             diceGame.gameParticipants.append(author)
             await ctx.send("Starting a new game! Use !joingame to enter!")
@@ -44,7 +44,7 @@ class diceGame(commands.Cog):
     async def joingame(self, ctx):
         channel = ctx.message.channel
         if diceGame.gameOpen and diceGame.gameJoining:
-            author = ctx.author.name
+            author = ctx.author.nick
             diceGame.gameParticipants.append(author)
             await ctx.send(f"{author} has joined the game!")
         elif not diceGame.gameOpen:
@@ -59,7 +59,7 @@ class diceGame(commands.Cog):
             channel = ctx.message.channel
             await ctx.author.send("There's currently no game running. Use !newgame to start a new game.")
             await channel.purge(limit=1)
-        elif ctx.message.author.name != diceGame.gameHost:
+        elif ctx.message.author.nick != diceGame.gameHost:
             channel = ctx.message.channel
             await ctx.author.send(f"Only the host can start this game. The current game's host is {diceGame.gameHost}")
             await channel.purge(limit=1)

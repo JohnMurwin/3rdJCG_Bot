@@ -101,7 +101,7 @@ class missions(commands.Cog):
                     channelID = 0
 
                 if missionMaker == "none":
-                    missionMaker = ctx.author.name
+                    missionMaker = ctx.author.nick
 
                 mycursor = mydb.cursor()
                 sql = "INSERT INTO missions (name, date, time, author, channelid) VALUES (%s, %s, %s, %s, %s)"
@@ -316,7 +316,7 @@ class missions(commands.Cog):
 
     @commands.command(aliases = ['notify'])
     async def yell(self, ctx):
-        messageAuthor = ctx.author.name
+        messageAuthor = ctx.author.nick
         channelID = ctx.channel.id
         channel = ctx.message.channel
         mycursor = mydb.cursor()
