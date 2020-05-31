@@ -47,7 +47,7 @@ class missions(commands.Cog):
     @commands.command(aliases=['nm'])
     async def newMission(self, ctx, missionName=None, missionDate=None, missionMaker="none", missionTime="19:00", createChannel=True):
         #before anything else, make sure the required parameters are provided, if not, send the user a message
-        if missionName or missionDate == None:
+        if missionName == None or missionDate == None:
             embed = discord.Embed(title="Syntax Error", description="The mission name and date are required.", color=embedRed)
             embed.add_field(name='Example:', value = "!nm \"Power Overwhelming\" 01/01/20", inline=False)
             embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
@@ -338,7 +338,7 @@ class missions(commands.Cog):
         mydb.close()
     # Mission Notify #
 
-    @commands.command(aliases = ['notify'])
+    @commands.command()
     async def yell(self, ctx):
         #connect to the db
         mydb = init_db()
@@ -368,7 +368,14 @@ class missions(commands.Cog):
             mycursor = mydb.cursor()
             mycursor.execute("UPDATE missions SET mentioned = '1' WHERE channelid = %s", (channelID,))
             mydb.commit()
-            await ctx.send("@everyone")
+            msg = await ctx.send("@everyone")   #store message for reactions posting
+
+            reactions = ['\U0001F44D','\U000023F2'] #list of reactions to post
+
+            for emoji in reactions: #add reaction to post
+                await msg.add_reaction(emoji)            
+
+
         mydb.close()
 
     @commands.command(aliases = ['upload'])
