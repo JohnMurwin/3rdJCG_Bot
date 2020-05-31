@@ -20,14 +20,13 @@ BotAdmin = json.loads(open("config.json").read())["BOT_ADMIN"]
 BotCommander = json.loads(open("config.json").read())["BOT_COMMANDER"]
 BotUser = json.loads(open("config.json").read())["BOT_USER"]
 
-
 #Command Prefix Setup
 client = commands.Bot(command_prefix = prefix)
-
 
 # READY #
 @client.event
 async def on_ready():
+    print ('Jr is Online')
     #set bot status
     await client.change_presence(status=discord.Status.online, activity=discord.Game('!help'))
 
