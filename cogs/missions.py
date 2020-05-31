@@ -24,12 +24,13 @@ dbpw = json.loads(open("config.json").read())["DBPW"]
 db = json.loads(open("config.json").read())["DB"]
 missionsPath = json.loads(open("config.json").read())["MISSIONPATH"]
 
-mydb = mysql.connector.connect(
-            host= dbhost,
-            user= dbuser,
-            passwd= dbpw,
-            database= db
-            )
+def init_db():
+    return mysql.connector.connect(
+        host= dbhost,
+        user= dbuser,
+        passwd= dbpw,
+        database= db
+        )
 
 embedRed = 0xff0000
 embedGreen = 0x008000
@@ -44,9 +45,19 @@ class missions(commands.Cog):
 
     # New Mission #
     @commands.command(aliases=['nm'])
-    async def newMission(self, ctx, missionName, missionDate, missionMaker="none", missionTime="19:00", createChannel=True):
-        attachments = ctx.message.attachments
+    async def newMission(self, ctx, missionName=None, missionDate=None, missionMaker="none", missionTime="19:00", createChannel=True):
+        #before anything else, make sure the required parameters are provided, if not, send the user a message
+        if missionName == None or missionDate == None:
+            embed = discord.Embed(title="Syntax Error", description="The mission name and date are required.", color=embedRed)
+            embed.add_field(name='Example:', value = "!nm \"Power Overwhelming\" 01/01/20", inline=False)
+            embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
+            await ctx.send(embed = embed)
+            return
+        
+        #connect to the db
+        mydb = init_db()
 
+        attachments = ctx.message.attachments
         #check missions table for a mission reserved on the provided date, if none exist, log the new mission
         mycursor = mydb.cursor()
         mycursor.execute("SELECT * FROM missions WHERE date = %s", (missionDate,))
@@ -151,12 +162,22 @@ class missions(commands.Cog):
             embed.add_field(name="Author", value = missionQuery[0][3], inline=False)
             embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
             await ctx.send(embed=embed)
-
+        #close the db connection
+        mydb.close()
     # Cancel Mission #
 
     @commands.command(aliases = ['cm'])
-    async def cancelMission(self, ctx, missionName):
-        
+    async def cancelMission(self, ctx, missionName=None):
+        #before anything else, make sure the required parameters are provided, if not, send the user a message
+        if missionName == None:
+            embed = discord.Embed(title="Syntax Error", description="The mission name is required.", color=embedRed)
+            embed.add_field(name='Example:', value = "!cm \"Power Overwhelming\"", inline=False)
+            embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
+            await ctx.send(embed = embed)
+            return
+        #connect to the db
+        mydb = init_db()
+
         #wrote this late and not entirely sure why it works compared to previous methods but I'm leaving it because it works
         mycursor = mydb.cursor()
         mycursor.execute("SELECT * FROM missions WHERE name = %s", (missionName,))
@@ -183,10 +204,13 @@ class missions(commands.Cog):
             embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
             await ctx.send(embed=embed)
 
+        mydb.close()
     # List Missions #
 
     @commands.command(aliases = ['lm'])
     async def listMission(self, ctx, field=None, fieldValue=None):
+        #connect to the db
+        mydb = init_db()
 
         missionDate, missionName, missionMaker, invalidDate = None, None, None, None
         #setup vars based on parameters input
@@ -311,11 +335,14 @@ class missions(commands.Cog):
                 embed = discord.Embed(title="No missions were found", description = "Check your spelling, try a different pramemter or no future missions have been scheduled at this time.", color=embedRed)
                 embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
                 await ctx.send(embed=embed)
-
+        mydb.close()
     # Mission Notify #
 
-    @commands.command(aliases = ['notify'])
+    @commands.command()
     async def yell(self, ctx):
+        #connect to the db
+        mydb = init_db()
+
         messageAuthor = ctx.author.nick
         channelID = ctx.channel.id
         channel = ctx.message.channel
@@ -341,8 +368,15 @@ class missions(commands.Cog):
             mycursor = mydb.cursor()
             mycursor.execute("UPDATE missions SET mentioned = '1' WHERE channelid = %s", (channelID,))
             mydb.commit()
-            await ctx.send("@everyone")
+            msg = await ctx.send("@everyone")   #store message for reactions posting
 
+            reactions = ['\U0001F44D','\U000023F2'] #list of reactions to post
+
+            for emoji in reactions: #add reaction to post
+                await msg.add_reaction(emoji)            
+
+
+        mydb.close()
 
     @commands.command(aliases = ['upload'])
     async def uploadMission(self, ctx):
