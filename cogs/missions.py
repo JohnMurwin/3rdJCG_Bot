@@ -257,12 +257,13 @@ class missions(commands.Cog):
                 mycursor = mydb.cursor()
                 sql = "SELECT * FROM missions ORDER BY date"
                 mycursor.execute(sql)
+                totalCount = 0
                 count = 0
                 result = [row[1:5] for row in mycursor.fetchall()]
 
                 for i in result:
-                    count += 1
-                for x in range(0,count):
+                    totalCount += 1
+                for x in range(0,totalCount):
                     if datetime.strptime(result[x][1], '%m/%d/%y') >= datetime.strptime(todayStr, '%m/%d/%y'):
                         embed = discord.Embed(title="Mission: {}".format(result[x][0]), color=embedGreen)
                         embed.add_field(name="Name", value = result[x][0], inline=False)
@@ -271,6 +272,7 @@ class missions(commands.Cog):
                         embed.add_field(name="Author", value = result[x][3], inline=False)
                         embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
                         await ctx.send(embed=embed)
+                        count += 1
 
             #else if misison date is supplied, list the mission with the cooresponding date
             elif missionDate != None:
@@ -329,8 +331,8 @@ class missions(commands.Cog):
                         embed.add_field(name="Time", value = result[x][2], inline=False)                       
                         embed.add_field(name="Author", value = result[x][3], inline=False)
                         embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
-                        await ctx.send(embed=embed)
-                
+                        await ctx.send(embed=embed) 
+
             if count == 0:
                 embed = discord.Embed(title="No missions were found", description = "Check your spelling, try a different pramemter or no future missions have been scheduled at this time.", color=embedRed)
                 embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
