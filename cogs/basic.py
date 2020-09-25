@@ -9,6 +9,7 @@ import discord
 import time
 import random
 import asyncio
+import re
 from bot import BotAdmin
 from bot import BotCommander
 from bot import BotUser

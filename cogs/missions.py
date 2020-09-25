@@ -108,11 +108,14 @@ class missions(commands.Cog):
                     category = discord.utils.get(ctx.guild.categories, name="OPERATIONS")
                     channel = await ctx.guild.create_text_channel(missionName,overwrites=None,category = category)
                     channelID = channel.id
+                    
+                    if missionMaker == "none":
+                        missionMaker = ctx.author.nick
+
+                    introMessage = f"__**{missionName}**__\rThis mission is scheduled for: **{missionDate}** @ **{missionTime}**\rAuthor: **{missionMaker}**"
+                    await channel.send(introMessage)
                 else:
                     channelID = 0
-
-                if missionMaker == "none":
-                    missionMaker = ctx.author.nick
 
                 mycursor = mydb.cursor()
                 sql = "INSERT INTO missions (name, date, time, author, channelid) VALUES (%s, %s, %s, %s, %s)"
@@ -188,7 +191,7 @@ class missions(commands.Cog):
         if count != 0:
             channelID = int(result[0][4])
             
-            embed = discord.Embed(title="Mission: {} has been deleted".format(missionName), description = "Mission go bye bye", color=embedGreen)
+            embed = discord.Embed(title="Mission: {} has been deleted".format(missionName), color=embedGreen)
             embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
             await ctx.send(embed=embed)
             if channelID != 0:
@@ -200,7 +203,7 @@ class missions(commands.Cog):
             mydb.commit()    
 
         else:
-            embed = discord.Embed(title="Mission: {} was not found".format(missionName), description = "Either you spell like Friedel or it ain't there", color=embedRed)
+            embed = discord.Embed(title="Mission: {} was not found".format(missionName), description = "Make sure the name of the mission is correct and try again", color=embedRed)
             embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
             await ctx.send(embed=embed)
 
@@ -340,7 +343,7 @@ class missions(commands.Cog):
         mydb.close()
     # Mission Notify #
 
-    @commands.command()
+    @commands.command(aliases = ['alert'])
     async def yell(self, ctx):
         #connect to the db
         mydb = init_db()
