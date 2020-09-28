@@ -57,8 +57,9 @@ async def on_ready():
 
             nickNameAfter = after.nick
             nickNameBefore = before.nick
-            nickPattern = "((?:[A-Z][-. ]+)+) ([- A-Za-z]+(?:, \w+)?)"
-            validNick = re.match(nickPattern, nickNameAfter)
+            #nickname formats allowed W.Alphin and W. Alphin
+            nickPattern1 = "((?:[A-Z][-. ]+)+) ([- A-Za-z]+(?:, \w+)?)"
+            nickPattern2 = "((?:[A-Z][-. ]+)+)([- A-Za-z]+(?:, \w+)?)"
 
             role = discord.utils.get(after.guild.roles, name='Recruit')
             memberRoles = [role.name for role in after.roles]
@@ -68,7 +69,7 @@ async def on_ready():
                     if ("Member" or "MIA" or "Unit Friend" or "Phase 1" or "Phase 2" or "Phase 3") in memberRoles:
                         pass
                     else:
-                        if validNick:
+                        if re.match(nickPattern1, nickNameAfter) or re.match(nickPattern2, nickNameAfter):
                             await after.add_roles(role)
 
 # CLEAR ALL MESSAGES COMMAND # 
