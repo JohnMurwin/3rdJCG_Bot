@@ -16,6 +16,7 @@ import mysql.connector
 from discord.ext import commands
 from datetime import timedelta
 from datetime import datetime
+from discord.utils import get
 
 #pull DB connection from secure file
 dbhost = json.loads(open("config.json").read())["DBHOST"]
@@ -32,8 +33,12 @@ def init_db():
         database= db
         )
 
+# embed colors
 embedRed = 0xff0000
 embedGreen = 0x008000
+
+ # roles used for alert and role sign up commands
+roleIndex = ["Armor","Artillery","Engineer","FixedWing","Medic","Recon","Rotary","RTO","RP"]
 
 # MISSIONS TABLE INDEX #
 # id, name, date, time ,author, channelid, mentioned
@@ -105,7 +110,7 @@ class missions(commands.Cog):
             if  not invalidDate and not invalidTime:
                 #create the mission channel for the author to post the dossier
                 if createChannel:
-                    category = discord.utils.get(ctx.guild.categories, name="OPERATIONS")
+                    category = get(ctx.guild.categories, name="OPERATIONS")
                     channel = await ctx.guild.create_text_channel(missionName,overwrites=None,category = category)
                     channelID = channel.id
                     
@@ -195,7 +200,7 @@ class missions(commands.Cog):
             embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
             await ctx.send(embed=embed)
             if channelID != 0:
-                channel = discord.utils.get(ctx.guild.channels, id=channelID)
+                channel = get(ctx.guild.channels, id=channelID)
                 await discord.TextChannel.delete(channel)
 
             mycursor = mydb.cursor()
@@ -341,10 +346,10 @@ class missions(commands.Cog):
                 embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
                 await ctx.send(embed=embed)
         mydb.close()
+    
     # Mission Notify #
-
-    @commands.command(aliases = ['alert'])
-    async def yell(self, ctx):
+    @commands.command(aliases = ['yell'])
+    async def alert(self, ctx, test=False):
         #connect to the db
         mydb = init_db()
 
@@ -356,6 +361,7 @@ class missions(commands.Cog):
         result = [row[0:2] for row in mycursor.fetchall()]
         missionAuthor = result[0][0]
         mentioned = result[0][1]
+        mentioned = 0
 
         if missionAuthor != messageAuthor:
             embed = discord.Embed(title="Notify Failure", description="You must be the mission author to notify everyone", color=embedRed)
@@ -373,16 +379,131 @@ class missions(commands.Cog):
             mycursor = mydb.cursor()
             mycursor.execute("UPDATE missions SET mentioned = '1' WHERE channelid = %s", (channelID,))
             mydb.commit()
-            msg = await ctx.send("@everyone")   #store message for reactions posting
 
-            reactions = ['\U0001F44D','\U000023F2'] #list of reactions to post
+            if test == False:
+                await ctx.send("@everyone")   #store message for reactions posting
+            else:
+                await ctx.send(ctx.author.mention)
 
-            for emoji in reactions: #add reaction to post
-                await msg.add_reaction(emoji)            
+            # build the role sign up embed
+            embed = discord.Embed(title="Role Sign-Up", color=embedGreen)
+            embed.add_field(name="__**Attending**__ \U0001F44D", value='0', inline=True)
+            embed.add_field(name="__**Late**__ \U000023F2", value='0', inline=False)
+            embed.set_footer(text="Order: First to last per role | Position is not saved if removed.")
+            embed.add_field(name='\u200b', value='\u200b', inline=False)
 
+            emojiList = self.client.emojis
+            roleEmojiList = ['\U0001F44D','\U000023F2']
+            for role in roleIndex:
+                for emoji in emojiList:
+                    if emoji.name == role:
+                        roleEmojiList.append(self.client.get_emoji(emoji.id))
+                        embed.add_field(name=f"{emoji} {emoji.name}",value='\u200b') 
 
-        mydb.close()
+            embed.set_image(url='https://i.imgur.com/M2QQFy1.png')
+            msg = await ctx.send(embed=embed)
 
+            for emoji in roleEmojiList: #add reaction to post
+                await msg.add_reaction(emoji)
+
+        mydb.close()         
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+                
+        guild = self.client.get_guild(payload.guild_id)
+        channel = self.client.get_channel(payload.channel_id)
+        userNick = guild.get_member(payload.user_id).nick
+
+        # get the channel and message that is being reacted to
+        reactChannel = self.client.get_channel(payload.channel_id)
+        reactMessage = payload.message_id
+        msg = await reactChannel.fetch_message(reactMessage)
+
+        # if the message doesn't have an embed, do nothing, else
+        if msg.embeds != []:
+            msgEmbed = msg.embeds[0]
+            embedTitle = msgEmbed.title
+            reactedEmoji = payload.emoji
+            reactedEmojiName = reactedEmoji.name
+            embedFields = set()
+
+            # check the title of the embed to make sure it's for role assignment
+            if embedTitle == "Role Sign-Up":
+                if userNick != None:
+                    if reactedEmojiName in roleIndex or reactedEmojiName in ['\U0001F44D','\U000023F2']:
+
+                        msgReactions = msg.reactions
+                        attendingReactionCount = msgReactions[0].count - 1
+                        lateReactionCount = msgReactions[1].count - 1
+                        for field in msgEmbed.fields:
+
+                            if field.name == f"{reactedEmoji} {reactedEmojiName}":
+                                if userNick in field.value:
+                                    return
+                                else:
+                                    if '\u200b' in field.value:
+                                        newFieldValue = userNick
+                                        msgEmbed.set_field_at(roleIndex.index(reactedEmojiName)+3, name=field.name, value=newFieldValue, inline=True)
+                                    else:
+                                        newFieldValue = field.value + f"\r {userNick}"
+                                        msgEmbed.set_field_at(roleIndex.index(reactedEmojiName)+3, name=field.name, value=newFieldValue, inline=True)
+
+                            # update attending/late numbers
+                            elif reactedEmojiName == '\U0001F44D':
+                                msgEmbed.set_field_at(0, name="__**Attending**__ \U0001F44D", value=str(attendingReactionCount), inline=True)
+                            elif reactedEmojiName == '\U000023F2':
+                                msgEmbed.set_field_at(1, name="__**Late**__ \U000023F2", value=str(lateReactionCount), inline=False)
+                        await msg.edit(embed=msgEmbed)
+                        await asyncio.sleep(2)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        
+        guild = self.client.get_guild(payload.guild_id)
+        channel = self.client.get_channel(payload.channel_id)
+        userNick = guild.get_member(payload.user_id).nick
+
+        # get the channel and message that is being reacted to
+        reactChannel = self.client.get_channel(payload.channel_id)
+        reactMessage = payload.message_id
+        msg = await reactChannel.fetch_message(reactMessage)
+
+        # if the message doesn't have an embed, do nothing, else
+        if msg.embeds != []:
+            msgEmbed = msg.embeds[0]
+            
+            embedTitle = msgEmbed.title
+            reactedEmoji = payload.emoji
+            reactedEmojiName = reactedEmoji.name
+            embedFields = set()
+
+            # check the title of the embed to make sure it's for role assignment
+            if embedTitle == "Role Sign-Up":
+                if userNick != None:
+                    if reactedEmojiName in roleIndex or reactedEmojiName in ['\U0001F44D','\U000023F2']:
+
+                        msgReactions = msg.reactions
+                        attendingReactionCount = msgReactions[0].count - 1
+                        lateReactionCount = msgReactions[1].count - 1
+                        for field in msgEmbed.fields:
+
+                            if field.name == f"{reactedEmoji} {reactedEmojiName}":
+                                if field.value == userNick:
+                                    newFieldValue = field.value.replace(userNick,'\u200b')
+                                else:
+                                    newFieldValue = field.value.replace(userNick,"")
+                                #await channel.send(f"ValueN: {newFieldValue}")
+                                msgEmbed.set_field_at(roleIndex.index(reactedEmojiName)+3, name=field.name, value=newFieldValue, inline=True)
+
+                            # update attending/late numbers
+                            elif reactedEmojiName == '\U0001F44D':
+                                msgEmbed.set_field_at(0, name="__**Attending**__ \U0001F44D", value=str(attendingReactionCount), inline=True)
+                            elif reactedEmojiName == '\U000023F2':
+                                msgEmbed.set_field_at(1, name="__**Late**__ \U000023F2", value=str(lateReactionCount), inline=False)
+                        
+                        await msg.edit(embed=msgEmbed)
+                        await asyncio.sleep(2)
     @commands.command(aliases = ['upload'])
     async def uploadMission(self, ctx):
         attachments = ctx.message.attachments
