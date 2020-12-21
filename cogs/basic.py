@@ -10,6 +10,10 @@ import time
 import random
 import asyncio
 import re
+import os
+import wmi
+import subprocess
+import sys
 from bot import BotAdmin
 from bot import BotCommander
 from bot import BotUser
@@ -56,6 +60,41 @@ class Basic(commands.Cog):
         embed.add_field(name="Result", value=(outcomes), inline=True)
 
         await ctx.send(embed=embed)
+
+    # WARCRIMES #
+    @commands.command()
+    async def warcrime(self, ctx):
+        await ctx.send(file=discord.File('.\data\warcrimes.png'))
+
+    # A3 SERVER RESTART #
+    @commands.command()
+    @commands.has_any_role(*BotAdmin)
+    async def restart(self, ctx):
+        procName = "arma3server_x64.exe"
+        procStartPath = "C:\\Users\\Administrator\\Desktop\\StockArma3Launcher.bat.lnk"
+        procFound = False
+        procList = []
+        w = wmi.WMI() # initialize WMI
+
+        await ctx.send("Status: Attempting Restart...")
+
+        #puts all running proceses in a table (expecting multiple processes to be found that need to be killed)
+        for process in w.Win32_Process():
+            proc = [process.name, process.ProcessID]
+            procList.append(proc)
+
+        #kill all the running processes, and then start them 
+        for process in procList:
+            if process[0] == procName and procFound == False:
+                procFound = True
+                os.kill(process[1], 9)
+
+        if procFound:
+            await ctx.send("Status: Server Found - Restarting")
+            os.startfile(procStartPath)
+        else:
+            await ctx.send("Status: No Server Found - Starting")
+            os.startfile(procStartPath)
 
     # 8BALL COMMAND #
     #returns a randomly selected response from list below

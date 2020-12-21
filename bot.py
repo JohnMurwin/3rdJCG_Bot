@@ -21,8 +21,12 @@ BotAdmin = json.loads(open("config.json").read())["BOT_ADMIN"]
 BotCommander = json.loads(open("config.json").read())["BOT_COMMANDER"]
 BotUser = json.loads(open("config.json").read())["BOT_USER"]
 
+#define member intent
+intents = discord.Intents.default()
+intents.members = True
+
 #Command Prefix Setup
-client = commands.Bot(command_prefix = prefix)
+client = commands.Bot(command_prefix = prefix, intents = intents)
 
 # READY #
 @client.event

@@ -413,7 +413,7 @@ class missions(commands.Cog):
                 
         guild = self.client.get_guild(payload.guild_id)
         channel = self.client.get_channel(payload.channel_id)
-        userNick = guild.get_member(payload.user_id).nick
+        userNick = payload.member.nick
 
         # get the channel and message that is being reacted to
         reactChannel = self.client.get_channel(payload.channel_id)
@@ -464,6 +464,7 @@ class missions(commands.Cog):
         channel = self.client.get_channel(payload.channel_id)
         userNick = guild.get_member(payload.user_id).nick
 
+
         # get the channel and message that is being reacted to
         reactChannel = self.client.get_channel(payload.channel_id)
         reactMessage = payload.message_id
@@ -504,6 +505,7 @@ class missions(commands.Cog):
                         
                         await msg.edit(embed=msgEmbed)
                         await asyncio.sleep(2)
+
     @commands.command(aliases = ['upload'])
     async def uploadMission(self, ctx):
         attachments = ctx.message.attachments
